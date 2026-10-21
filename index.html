@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kailasa — The Eternal Monument | Cave 16, Ellora</title>
+<meta name="description" content="A historically informed, architectural 3D reconstruction of the monolithic Kailasa Temple (Cave 16) at Ellora, Maharashtra, India.">
+<style>
+:root{
+  --ob:#0B0B0A;
+  --st:#1F1C18;
+  --ba:#777064;
+  --go:#C58B45;
+  --go-glow:rgba(197,139,69,0.35);
+  --sa:#D7B98A;
+  --iv:#EEE5D5;
+  --cl:#141210;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--ob);color:var(--iv);font:16px/1.65 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;overflow-x:hidden}
+#gl{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+.vg{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 42%,rgba(11,11,10,.82) 100%)}
+header{position:fixed;top:0;left:0;right:0;z-index:25;display:flex;justify-content:space-between;align-items:center;padding:calc(20px + env(safe-area-inset-top,0px)) 5vw 0;pointer-events:none}
+header *{pointer-events:auto}
+.logo{letter-spacing:.42em;font-size:13px;color:var(--sa);text-decoration:none;font-weight:600}
+.logo span{color:var(--go);font-size:11px;letter-spacing:.25em;display:block;margin-top:2px;font-family:ui-sans-serif,system-ui,sans-serif;font-weight:400}
+.hdr-actions{display:flex;gap:12px;align-items:center}
+button{font:inherit;color:inherit;cursor:pointer}
+.mn{background:rgba(11,11,10,0.6);border:1px solid rgba(215,185,138,.45);backdrop-filter:blur(8px);padding:9px 16px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-family:ui-sans-serif,system-ui,sans-serif;transition:all .3s}
+.mn:hover{border-color:var(--go);background:rgba(197,139,69,0.15);color:var(--sa)}
+.mn.active{background:var(--go);border-color:var(--go);color:var(--ob);font-weight:600}
+
+/* Hotspots floating control */
+#hotspot-bar{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:22;display:flex;gap:8px;background:rgba(15,13,11,0.85);border:1px solid rgba(215,185,138,0.3);backdrop-filter:blur(12px);padding:6px 10px;border-radius:30px;box-shadow:0 12px 36px rgba(0,0,0,0.6);transition:all .4s ease;max-width:92vw;overflow-x:auto}
+#hotspot-bar::-webkit-scrollbar{display:none}
+.hs-btn{background:none;border:none;color:var(--sa);padding:7px 14px;border-radius:20px;font:11px ui-sans-serif,system-ui,sans-serif;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap;transition:all .3s}
+.hs-btn:hover{background:rgba(215,185,138,0.12);color:var(--iv)}
+.hs-btn.a{background:var(--go);color:var(--ob);font-weight:600;box-shadow:0 0 16px var(--go-glow)}
+
+/* 3D Hotspot Pins in WebGL Space */
+.hs-pin{position:fixed;z-index:15;transform:translate(-50%,-50%);pointer-events:none;cursor:pointer;display:none;opacity:0;transition:opacity .4s ease,transform .3s cubic-bezier(.175,.885,.32,1.275)}
+.show-hotspots .hs-pin{opacity:1;pointer-events:auto;display:block}
+.hs-pin-inner{width:26px;height:26px;border-radius:50%;background:rgba(11,11,10,0.88);border:2px solid var(--go);display:grid;place-items:center;color:var(--go);font:11px/1 ui-sans-serif,sans-serif;font-weight:700;box-shadow:0 0 14px var(--go-glow);transition:transform .3s cubic-bezier(.175,.885,.32,1.275)}
+.hs-pin:hover .hs-pin-inner,.hs-pin.sel .hs-pin-inner{transform:scale(1.25);background:var(--go);color:var(--ob)}
+.hs-pin-label{position:absolute;top:50%;left:34px;transform:translateY(-50%);background:rgba(15,13,11,0.94);border:1px solid rgba(215,185,138,0.35);padding:4px 10px;border-radius:4px;font:11px/1 ui-sans-serif,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--iv);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .25s ease;backdrop-filter:blur(6px)}
+.hs-pin:hover .hs-pin-label,.hs-pin.sel .hs-pin-label{opacity:1}
+body.hotspot-active .pin .pn{opacity:0.06;pointer-events:none;transition:opacity .35s ease}
+
+/* Hotspot Detail Inspection Card */
+#hs-card{position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(20px);z-index:26;background:rgba(15,13,11,0.95);border:1px solid var(--sa);border-radius:6px;max-width:580px;width:90vw;padding:22px 26px;box-shadow:0 24px 50px rgba(0,0,0,0.8);backdrop-filter:blur(16px);opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease}
+#hs-card.open{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+#hs-card .hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;border-bottom:1px solid rgba(215,185,138,0.25);padding-bottom:10px}
+#hs-card h3{font-size:20px;font-weight:400;color:var(--sa);letter-spacing:.05em}
+#hs-card .tag{font:10px/1 ui-sans-serif,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--go);display:block;margin-bottom:4px}
+#hs-card p{font-size:14px;color:#d5cdc0;line-height:1.6;margin-bottom:12px}
+#hs-card .actions{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+#hs-card .cls-btn{background:none;border:1px solid var(--ba);color:var(--sa);padding:6px 14px;font:11px ui-sans-serif,sans-serif;letter-spacing:.15em;text-transform:uppercase;border-radius:3px}
+#hs-card .cls-btn:hover{border-color:var(--go);color:var(--iv)}
+
+/* Historical Mysteries Drawer / Modal */
+#mysteries{position:fixed;inset:0;z-index:40;background:rgba(11,11,10,0.96);backdrop-filter:blur(20px);display:none;overflow-y:auto;padding:8vh 7vw}
+#mysteries.open{display:block}
+.myst-inner{max-width:960px;margin:0 auto;position:relative}
+.myst-close{position:fixed;top:30px;right:5vw;z-index:42}
+.myst-hdr{margin-bottom:40px;border-bottom:1px solid var(--st);padding-bottom:24px}
+.myst-hdr .k{font:12px ui-sans-serif,sans-serif;letter-spacing:.3em;text-transform:uppercase;color:var(--go);margin-bottom:10px}
+.myst-hdr h2{font-size:clamp(30px,4.5vw,56px);font-weight:400;letter-spacing:.03em;color:var(--iv)}
+.myst-intro{font-size:17px;color:#cfc5b3;max-width:760px;margin-top:12px;line-height:1.7}
+.myst-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:32px;margin-top:36px}
+@media(max-width:540px){.myst-grid{grid-template-columns:1fr}}
+.myst-card{background:rgba(26,23,20,0.7);border:1px solid rgba(215,185,138,0.22);padding:26px;border-radius:4px;transition:border-color .3s,background .3s}
+.myst-card:hover{border-color:var(--go);background:rgba(30,26,22,0.9)}
+.myst-card h3{font-size:22px;font-weight:400;color:var(--sa);margin-bottom:12px;letter-spacing:.03em}
+.badge-group{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.badge{font:10px/1 ui-sans-serif,sans-serif;letter-spacing:.15em;text-transform:uppercase;padding:4px 8px;border-radius:2px;font-weight:600}
+.badge.ev{background:rgba(60,140,80,0.18);border:1px solid #58b070;color:#8ce6a3}
+.badge.sc{background:rgba(197,139,69,0.18);border:1px solid var(--go);color:var(--sa)}
+.badge.tr{background:rgba(140,110,60,0.18);border:1px dashed var(--ba);color:#d0c4af}
+.badge.un{background:rgba(180,80,60,0.18);border:1px solid #c86450;color:#f09885}
+.myst-card p{font-size:14.5px;color:#c9c1b0;line-height:1.65;margin-bottom:10px}
+
+/* Chapters Menu */
+#menu{position:fixed;inset:0;z-index:35;background:rgba(11,11,10,.96);backdrop-filter:blur(24px);display:none;flex-direction:column;justify-content:center;padding:0 9vw}
+#menu.open{display:flex}
+#menu a{font-size:clamp(20px,3.8vw,38px);color:var(--iv);text-decoration:none;padding:5px 0;transition:all .3s}
+#menu a:hover,#menu a:focus{color:var(--go);transform:translateX(10px)}
+#menu a span{font:12px ui-sans-serif,system-ui,sans-serif;letter-spacing:.2em;color:var(--go);margin-right:18px}
+#mx{position:absolute;top:20px;right:5vw}
+
+/* Scroll progress and rail */
+#bar{position:fixed;top:0;left:0;height:2.5px;background:linear-gradient(90deg,var(--sa),var(--go));z-index:28;width:0;box-shadow:0 0 10px var(--go)}
+.rail{position:fixed;right:2.2vw;top:50%;transform:translateY(-50%);z-index:20;display:flex;flex-direction:column;gap:14px}
+.rail a{width:9px;height:9px;border-radius:50%;border:1px solid var(--sa);display:block;transition:.4s}
+.rail a.a{background:var(--go);border-color:var(--go);transform:scale(1.5);box-shadow:0 0 10px var(--go-glow)}
+
+/* Main scroll storytelling sections */
+main{position:relative;z-index:5}
+.s{height:200vh;position:relative}
+.pin{position:sticky;top:0;height:100vh;height:100svh;display:flex;align-items:center;padding:0 9vw;pointer-events:none}
+.pin:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,11,10,.88) 0%,rgba(11,11,10,.5) 52%,transparent 100%);z-index:-1}
+.pn{max-width:580px;pointer-events:auto}
+.k{font:11px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.32em;text-transform:uppercase;color:var(--go);margin-bottom:20px}
+h1{font-size:clamp(54px,13vw,160px);letter-spacing:.06em;font-weight:400;line-height:.92;margin-bottom:24px}
+h2{font-weight:400;font-size:clamp(28px,4.2vw,56px);line-height:1.1;margin-bottom:20px}
+.sub{font-size:clamp(15px,1.8vw,22px);letter-spacing:.2em;color:var(--sa);line-height:1.5}
+p{color:#d9d0be;margin-bottom:14px;font-size:clamp(15px,1.2vw,17px);line-height:1.7}
+.w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.12em}
+.w i{display:inline-block;font-style:normal;transform:translateY(110%);transition:transform 1.1s cubic-bezier(.2,.7,.1,1) var(--d)}
+.on .w i{transform:none}
+.rv{opacity:0;transform:translateY(18px);transition:opacity 1s ease .55s,transform 1s ease .55s}
+.on .rv{opacity:1;transform:none}
+.tg{display:inline-block;font:11px ui-sans-serif,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;border:1px solid;margin:0 8px 10px 0}
+.tg.e{color:var(--sa);border-color:var(--sa)}.tg.a{color:var(--go);border-color:var(--go)}.tg.t{color:#b9b09c;border-color:var(--ba);border-style:dashed}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 16px}
+.tabs button{background:rgba(20,18,15,0.7);border:1px solid var(--ba);padding:8px 15px;font:11px ui-sans-serif,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;transition:all .3s}
+.tabs button.a{background:var(--go);border-color:var(--go);color:var(--ob);font-weight:600}
+.ro{font:12px ui-sans-serif,system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--sa);border-top:1px solid rgba(215,185,138,0.25);padding-top:14px;margin-top:10px}
+.hint{position:absolute;bottom:5vh;left:9vw;font:11px ui-sans-serif,system-ui,sans-serif;letter-spacing:.3em;text-transform:uppercase;color:var(--ba)}
+.fin h2{font-size:clamp(34px,6vw,84px)}
+
+/* Footer */
+footer{position:relative;z-index:6;background:var(--ob);padding:12vh 9vw 8vh;border-top:1px solid var(--st);color:#b9b09c;font-size:14px}
+footer h3{font-weight:400;letter-spacing:.3em;font-size:13px;color:var(--go);text-transform:uppercase;margin-bottom:16px}
+footer .c{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:40px;max-width:1150px}
+footer a{color:var(--sa);text-decoration:none;transition:color .2s}
+footer a:hover{color:var(--go);text-decoration:underline}
+footer li{margin-bottom:9px;list-style:none}
+footer small{display:block;margin-top:50px;color:var(--ba);line-height:1.7}
+
+/* Loading overlay */
+#ld{position:fixed;inset:0;z-index:50;background:var(--ob);display:flex;flex-direction:column;justify-content:center;align-items:center;letter-spacing:.45em;color:var(--sa);font:12px ui-sans-serif,system-ui,sans-serif;transition:opacity 1.4s ease}
+#ld.x{opacity:0;pointer-events:none}
+.ld-spinner{width:36px;height:36px;border:2px solid rgba(197,139,69,0.2);border-top-color:var(--go);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:24px}
+@keyframes spin{to{transform:rotate(360deg)}}
+#ld-msg{margin-top:12px;font-size:10px;letter-spacing:.25em;color:var(--ba);text-transform:uppercase}
+
+.nogl #gl{display:none}.nogl body{background:radial-gradient(circle at 50% 30%,#3a2c20,var(--ob))}
+a:focus-visible,button:focus-visible{outline:2px solid var(--go);outline-offset:3px}
+
+@media(max-width:760px){
+  .pin{align-items:flex-end;padding:0 6vw 10vh}
+  .pin:before{background:linear-gradient(0deg,rgba(11,11,10,.95) 0%,rgba(11,11,10,.6) 65%,transparent 100%)}
+  .rail{display:none}
+  .hint{left:6vw}
+  #hotspot-bar{bottom:16px;padding:4px 8px}
+  .hs-btn{padding:5px 10px;font-size:10px}
+  #hs-card{bottom:70px;padding:18px 20px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .w i,.rv{transition:none;transform:none;opacity:1}
+}
+</style>
+</head>
+<body>
+
+<div id="ld" role="status">
+  <div class="ld-spinner"></div>
+  <div>KAILASA</div>
+  <div id="ld-msg">Reconstructing Monolithic Architecture…</div>
+</div>
+
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="vg"></div>
+<div id="bar"></div>
+
+<header>
+  <a class="logo" href="#s0">
+    KAILASA
+    <span>Cave 16 · Ellora Monolith</span>
+  </a>
+  <div class="hdr-actions">
+    <button class="mn" id="btn-mysteries" aria-haspopup="dialog">Historical Mysteries</button>
+    <button class="mn" id="mb" aria-expanded="false" aria-controls="menu">Chapters</button>
+  </div>
+</header>
+
+<!-- Interactive Hotspots Navigation Bar -->
+<div id="hotspot-bar" role="toolbar" aria-label="Architectural Exploration Hotspots">
+  <button class="hs-btn a" data-target="scroll">Story Scroll</button>
+  <button class="hs-btn" data-hs="vimana">Vimana (Tower)</button>
+  <button class="hs-btn" data-hs="nandi">Nandi Mandapa</button>
+  <button class="hs-btn" data-hs="pillar">Victory Pillars</button>
+  <button class="hs-btn" data-hs="elephants">Monolithic Elephants</button>
+  <button class="hs-btn" data-hs="plinth">Elephant Plinth</button>
+  <button class="hs-btn" data-hs="ravana">Ravana Shaking Kailasa</button>
+  <button class="hs-btn" data-hs="cloisters">Rock Cloisters</button>
+  <button class="hs-btn" data-hs="gateway">Gopuram Screen</button>
+</div>
+
+<!-- 3D Projected Screen Hotspot Pins -->
+<div id="hotspot-pins" aria-hidden="true"></div>
+
+<!-- Hotspot Detail Inspection Card -->
+<div id="hs-card" role="dialog" aria-modal="false" aria-labelledby="hs-card-title">
+  <div class="hdr">
+    <div>
+      <span class="tag" id="hs-card-tag">Architectural Detail</span>
+      <h3 id="hs-card-title">Feature Title</h3>
+    </div>
+    <button class="cls-btn" id="hs-card-close" aria-label="Close detail card">✕</button>
+  </div>
+  <p id="hs-card-desc">Detailed architectural and archaeological analysis.</p>
+  <div class="actions">
+    <span class="ro" id="hs-card-meta" style="border:none;padding:0;margin:0;font-size:10px">Cave 16 · Rashtrakuta 8th Century</span>
+    <button class="cls-btn" id="hs-card-resume">Resume Story Scroll</button>
+  </div>
+</div>
+
+<!-- Historical Mysteries & Open Questions Modal -->
+<div id="mysteries" role="dialog" aria-modal="true" aria-labelledby="myst-heading">
+  <button class="mn myst-close" id="myst-close-btn">Close (Esc)</button>
+  <div class="myst-inner">
+    <div class="myst-hdr">
+      <div class="k">Archaeological Rigour · Historical Historiography</div>
+      <h2 id="myst-heading">Historical Mysteries &amp; Open Questions</h2>
+      <p class="myst-intro">Kailasa Temple is often clouded by sensational pseudo-archaeology. Yet the true scholarly debates—regarding top-down subtractive quarry logistics, multi-reign construction phases, missing basalt tailings, and sacred Himalayan symbolism—are vastly more profound than any manufactured myth.</p>
+    </div>
+
+    <div class="myst-grid">
+      <!-- Card 1 -->
+      <div class="myst-card">
+        <div class="badge-group">
+          <span class="badge ev">Established Evidence</span>
+          <span class="badge sc">Scholarly Interpretation</span>
+        </div>
+        <h3>The Krishna I Attribution &amp; Multi-Phase Patronage</h3>
+        <p><strong>The Evidence:</strong> The temple contains no foundation inscription. Its attribution to Rashtrakuta King Krishna I (r. c. 756–774 CE) rests primarily on the Baroda copper plate grant of Karka II (dated 812 CE), which poetically states that Krishna I caused a wondrous Shiva temple at Elapura to be constructed, eliciting awe even from the celestial gods.</p>
+        <p><strong>The Debate:</strong> Prominent archaeologists including M.K. Dhavalikar, Walter Spink, and H. Goetz argue that an excavation of this magnitude (~400,000 tonnes of basalt) likely spanned multiple monarchs: commenced under Dantidurga (who inaugurated Rashtrakuta monuments at Ellora), executed primarily under Krishna I, and embellished across subsequent reigns including Govinda II and Amoghavarsha I.</p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="myst-card">
+        <div class="badge-group">
+          <span class="badge ev">Established Evidence</span>
+          <span class="badge sc">Scholarly Interpretation</span>
+        </div>
+        <h3>Top-Down Subtractive Engineering</h3>
+        <p><strong>The Method:</strong> Unlike structural temples built by stacking quarried blocks, Kailasa was excavated subtractively from the basalt mountain peak down to the courtyard floor. Quarrymen chiseled three deep trenches into the Charanandri ridge, isolating an enormous rectangular monolithic core (82m × 46m × 33m).</p>
+        <p><strong>Technical Genius:</strong> By carving roofs and towers first, the living rock itself acted as scaffolding. Once sculptors finished the uppermost shikhara and finials, they moved down to lower storeys, eliminating both the cost of timber scaffolding and the risk of catastrophic structural settling. No structural stone could ever be added back if mistakenly chiseled away.</p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="myst-card">
+        <div class="badge-group">
+          <span class="badge un">Unresolved Question</span>
+          <span class="badge sc">Scholarly Interpretation</span>
+        </div>
+        <h3>The Mystery of the Missing 400,000 Tonnes of Basalt</h3>
+        <p><strong>The Enigma:</strong> Mathematical estimates of the excavated rock volume range from 200,000 to over 400,000 metric tonnes of solid Deccan trap basalt. Yet, in the immediate vicinity of Cave 16, there is no colossal mound of quarry debris or slag tailings.</p>
+        <p><strong>Scholarly Explanations:</strong> Archaeologists suggest the basalt chips were not simply discarded. High-density basalt was an invaluable building material: crushed rock was reused for foundations, water reservoirs, dams, defensive ramparts, and paved roads for ancient Elapura, or transported to fortify nearby heights such as Devagiri (later Daulatabad Fort).</p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="myst-card">
+        <div class="badge-group">
+          <span class="badge ev">Established Evidence</span>
+          <span class="badge tr">Traditional Account</span>
+        </div>
+        <h3>White Plaster &amp; The Snows of Mount Kailash</h3>
+        <p><strong>Cosmic Symbolism:</strong> The monument was conceptualized as Mount Kailash—the snow-shrouded Himalayan abode of Lord Shiva. To complete this cosmic metaphor, the dark volcanic basalt was covered with a thick coating of gleaming white lime plaster (<em>chunam</em>).</p>
+        <p><strong>Historical Memory:</strong> As late as the 18th century, European and Mughal travellers recorded the temple under the name <em>Ranga Mahal</em> (Painted Palace) because substantial polychrome frescoes and radiant white stucco still survived on its cornices, vimana tiers, and ceiling vaults.</p>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="myst-card">
+        <div class="badge-group">
+          <span class="badge tr">Traditional Account</span>
+          <span class="badge ev">Established Evidence</span>
+        </div>
+        <h3>The Kokasa Legend vs. Chalukyan Master Guilds</h3>
+        <p><strong>The Folklore:</strong> The 15th-century Marathi text <em>Katha-kalpataru</em> by Krishna Yajnavalki recounts that the queen of Elapura took a vow not to break her fast until she saw the shikhara of the Shiva temple. An ingenious master mason named Kokasa arrived and proposed starting from the peak down, allowing the queen to see the pinnacle in just a few days.</p>
+        <p><strong>Epigraphic Reality:</strong> Stylistic analysis reveals profound Dravidian architectural syntax intimately matching the Virupaksha Temple at Pattadakal (built by the Badami Chalukyas). The Rashtrakutas, having vanquished the Chalukyas, commissioned master guild architects (<em>Sarvasiddhi-acharyas</em>) from the south to execute this monumental Dravida program in rock.</p>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="myst-card">
+        <div class="badge-group">
+          <span class="badge ev">Established Evidence</span>
+          <span class="badge sc">Scholarly Interpretation</span>
+        </div>
+        <h3>Multilayered Plaster &amp; Ahilyabai Holkar Restorations</h3>
+        <p><strong>Layer Stratigraphy:</strong> Microscopic analysis reveals at least three distinct plaster campaigns. The earliest layer belongs to the 8th-century Rashtrakuta period, showing traces of ochre, cinnabar, and lapis lazuli pigments. A secondary campaign occurred during the Yadava era (12th–13th century).</p>
+        <p><strong>The Maratha Restoration:</strong> In the late 18th century, Maharani Ahilyabai Holkar of Indore sponsored extensive conservation and whitewashing across pilgrimage sites in Western India, applying a fresh lime wash that remains visible in sheltered niches today.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav id="menu" aria-label="Chapters">
+  <button class="mn" id="mx">Close</button>
+  <a href="#s0"><span>01</span>The Awakening</a>
+  <a href="#s1"><span>02</span>The Ancient Kingdom</a>
+  <a href="#s2"><span>03</span>Carved from One Rock</a>
+  <a href="#s3"><span>04</span>The Sacred Courtyard</a>
+  <a href="#s4"><span>05</span>Stories in Stone</a>
+  <a href="#s5"><span>06</span>Architecture Beyond Imagination</a>
+  <a href="#s6"><span>07</span>The Passage of Time</a>
+  <a href="#s7"><span>08</span>Eternal Kailasa</a>
+  <a href="#mysteries" id="menu-myst-link"><span>09</span>Historical Mysteries &amp; Open Questions</a>
+  <a href="#ft"><span>—</span>History &amp; Archaeological Sources</a>
+</nav>
+
+<div class="rail" id="rail" aria-hidden="true"></div>
+
+<main>
+  <!-- Chapter 1 -->
+  <section class="s" id="s0">
+    <div class="pin">
+      <div class="pn">
+        <div class="k rv">Cave 16 · Ellora, Maharashtra</div>
+        <h1 data-sp>KAILASA</h1>
+        <p class="sub rv">CARVED FROM THE MOUNTAIN.<br>BUILT TO TOUCH THE DIVINE.</p>
+      </div>
+      <div class="hint rv">Scroll to enter the monolithic sanctuary</div>
+    </div>
+  </section>
+
+  <!-- Chapter 2 -->
+  <section class="s" id="s1">
+    <div class="pin">
+      <div class="pn">
+        <div class="k rv">02 · The Ancient Kingdom</div>
+        <h2 data-sp>A king’s temple on the Deccan</h2>
+        <span class="tg a rv">Attributed</span><span class="tg e rv">Established</span>
+        <p class="rv">Kailasa is Cave 16 at Ellora, a titanic monolithic shrine to Shiva sculpted by the Rashtrakuta dynasty in the eighth century CE. The primary excavation is historically attributed to King Krishna I (c. 756–774 CE).</p>
+        <p class="rv">Carved directly into the basalt cliffs of the Charanandri range, the temple carries no formal dedicatory inscription. The attribution to Krishna I is corroborated by the Baroda copper plates of 812 CE, though scholars identify multiple architectural phases executed by master guild craftsmen over several decades.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chapter 3 -->
+  <section class="s" id="s2">
+    <div class="pin">
+      <div class="pn">
+        <div class="k rv">03 · Carved from One Rock</div>
+        <h2 data-sp>Not built. Uncovered.</h2>
+        <span class="tg e rv">Established</span><span class="tg t rv">Architectural Method</span>
+        <p class="rv">The monument was never constructed with quarried blocks or mortar. Instead, an entire hillside of Deccan trap basalt was excised away from above, isolating an enormous monolith inside a courtyard roughly 82 meters long, 46 meters wide, and 33 meters deep.</p>
+        <p class="rv">Master stonecutters worked exclusively top-down: the finial, shikhara dome, and upper halls were carved first before descending to the foundations, eliminating the need for scaffolding. An estimated 200,000 to 400,000 tonnes of volcanic rock were removed entirely by chisel, mallet, and iron pick.</p>
+        <div class="ro rv" aria-live="off">Top-down subtractive excavation · rock removed <b id="pc">0</b>%</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chapter 4 -->
+  <section class="s" id="s3">
+    <div class="pin">
+      <div class="pn">
+        <div class="k rv">04 · The Sacred Courtyard</div>
+        <h2 data-sp>Step through the gateway</h2>
+        <span class="tg e rv">Established</span><span class="tg t rv">Cosmological Symbol</span>
+        <p class="rv">Passing through the two-storeyed rock-cut gopuram screen, the immense sunlit courtyard opens before you. Colossal 15-meter monolithic victory pillars (<em>dhwaja-stambhas</em>) and life-sized guardian elephants flank the two-storeyed Nandi pavilion.</p>
+        <p class="rv">Surrounding the courtyard, vertical 33-meter cliff faces bear visible chisel grooves from 8th-century quarrymen, with deep, multi-tiered pillared cloisters excavated into the bedrock walls. Overhead, living rock bridges span between the gateway, Nandi mandapa, and main hypostyle hall.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chapter 5 -->
+  <section class="s" id="s4">
+    <div class="pin">
+      <div class="pn" data-tabs="4">
+        <div class="k rv">05 · Stories in Stone</div>
+        <h2 data-sp>The mountain, shaken</h2>
+        <div class="tabs rv">
+          <button class="a" aria-pressed="true">Ravana Anugraha</button>
+          <button aria-pressed="false">Shaivite Icons</button>
+          <button aria-pressed="false">Elephant Plinth</button>
+        </div>
+        <div class="tc rv">
+          <span class="tg e">Masterpiece</span>
+          <p>The southern plinth showcases the world-renowned <em>Ravananugraha</em> relief. Below, the twenty-armed demon king Ravana violently shakes Mount Kailasa; above, Shiva serenely steadies the mountain with a touch of his big toe while Parvati clings to him in apprehension and dwarf ganas mock the demon from rock crevices.</p>
+        </div>
+        <div class="tc" hidden>
+          <span class="tg e">Shaivite Iconography</span>
+          <p>Kailasa houses profound sculptural depictions of Shiva's manifestations: Nataraja in cosmic dance, Tripurantaka drawing his celestial bow, Andhakasuravadhamurti slaying the demon of darkness, Kalarimurti vanquishing time, and the serene Ardhanarishvara.</p>
+        </div>
+        <div class="tc" hidden>
+          <span class="tg e">Monumental Plinth</span>
+          <p>The entire adhisthana plinth of the temple features an awe-inspiring, continuous frieze of life-sized elephants, lions, and vyalas carved in high relief, appearing to effortlessly hoist the weight of the cosmic mountain upon their shoulders.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chapter 6 -->
+  <section class="s" id="s5">
+    <div class="pin">
+      <div class="pn" data-tabs="5">
+        <div class="k rv">06 · Architecture Beyond Imagination</div>
+        <h2 data-sp>Dravidian genius in living stone</h2>
+        <div class="tabs rv">
+          <button class="a" aria-pressed="true">The Vimana</button>
+          <button aria-pressed="false">Nandi Pavilion &amp; Bridges</button>
+          <button aria-pressed="false">Dhwaja-stambhas</button>
+          <button aria-pressed="false">Rock-Cut Cloisters</button>
+        </div>
+        <div class="tc rv">
+          <p>The central vimana rises 32.6 meters in classic Dravidian stepped pyramidal form. Three diminishing tiers (<em>talas</em>) are lined with miniature <em>kutas</em> (square shrines) and <em>shalas</em> (barrel-vault pavilions), culminating in an octagonal dome (<em>shikhara</em>) and water-pot finial (<em>kalasam</em>).</p>
+        </div>
+        <div class="tc" hidden>
+          <p>The detached Nandi mandapa rests on a high moulded plinth, sheltering a monolithic recumbent Nandi bull facing the sanctum. Monolithic rock bridges, left intact during excavation, span overhead to connect the gopuram, Nandi hall, and main mandapa porch.</p>
+        </div>
+        <div class="tc" hidden>
+          <p>Flanking the central axis stand two monumental 15-meter victory pillars (<em>dhwaja-stambhas</em>), adorned with 16-sided fluting, bulbous bell capitals, and crowned by the sacred Shaivite trident (<em>trishula</em>).</p>
+        </div>
+        <div class="tc" hidden>
+          <p>Continuous two-storeyed pillared cloisters run along the north, south, and east cliff perimeters, sheltering over forty colossal mythological relief panels sculpted directly into the mountain rock.</p>
+        </div>
+        <p class="ro rv">Model: Historically informed, proportional 3D reconstruction based on Archaeological Survey of India documentation.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chapter 7 -->
+  <section class="s" id="s6">
+    <div class="pin">
+      <div class="pn">
+        <div class="k rv">07 · The Passage of Time</div>
+        <h2 data-sp>Light moves. Stone remains.</h2>
+        <span class="tg e rv">Heritage Protection</span>
+        <p class="rv">For over twelve centuries, monsoons, wind, and seismic tremors have weathered the Deccan basalt. The original dazzling white lime plaster and vibrant frescoes have largely yielded to dark volcanic patina and iron oxide tones.</p>
+        <p class="rv">Inscribed as a UNESCO World Heritage Site in 1983, Kailasa remains under the stewardship of the Archaeological Survey of India (ASI)—a triumph of human artistic daring and engineering without equal on Earth.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chapter 8 -->
+  <section class="s" id="s7">
+    <div class="pin fin">
+      <div class="pn">
+        <div class="k rv">08 · Eternal Kailasa</div>
+        <h2 data-sp>CARVED IN STONE. REMEMBERED THROUGH TIME.</h2>
+        <p class="rv">Cave 16 is the pinnacle of the 34 Ellora excavations, which harmoniously encompass Buddhist, Hindu, and Jain sanctuaries across one sacred escarpment.</p>
+        <button class="mn" id="btn-explore-prompt" style="margin-top:16px;pointer-events:auto">Explore Architectural Hotspots</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="ft">
+  <div class="c">
+    <div>
+      <h3>About Kailasa (Cave 16)</h3>
+      <p>Cave 16 at Ellora (Verul), Chhatrapati Sambhajinagar District, Maharashtra, India. A monolithic rock-cut Shiva temple attributed predominantly to Rashtrakuta King Krishna I (c. 756–774 CE). Inscribed as a UNESCO World Heritage Site in 1983.</p>
+      <p>This 3D reconstruction reconstructs the complete monolithic temple complex including the 32.6m Dravidian vimana, Nandi pavilion, overhead rock bridges, dhwaja-stambha victory columns, monolithic elephants, adhisthana elephant plinth, and excavated basalt cliff scarp.</p>
+    </div>
+    <div>
+      <h3>Archaeological Sources</h3>
+      <ul>
+        <li><a href="https://whc.unesco.org/en/list/243" target="_blank" rel="noopener">UNESCO: Ellora Caves (Ref: 243)</a></li>
+        <li><a href="https://en.wikipedia.org/wiki/Kailasa_Temple,_Ellora" target="_blank" rel="noopener">ASI Documentation: Kailasa Temple</a></li>
+        <li><a href="https://en.wikipedia.org/wiki/M._K._Dhavalikar" target="_blank" rel="noopener">M.K. Dhavalikar: Masterpieces of Rashtrakuta Art</a></li>
+        <li><a href="https://www.jstor.org/stable/3249755" target="_blank" rel="noopener">Walter M. Spink: The Chronology of Cave 16</a></li>
+        <li><a href="https://nvli.in/stories/kailasa-majestic-temple-ellora" target="_blank" rel="noopener">NVLI: Kailasa, Majestic Temple at Ellora</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Exploration</h3>
+      <ul>
+        <li><a href="#s0">Back to the Awakening</a></li>
+        <li><a href="#s4">Stories in Stone (Sculptures)</a></li>
+        <li><a href="#s5">Architecture Beyond Imagination</a></li>
+        <li><a href="#mysteries" id="ft-myst-link">Historical Mysteries &amp; Open Questions</a></li>
+      </ul>
+    </div>
+  </div>
+  <small>Three.js WebGL procedural reconstruction created for educational and heritage appreciation. Proportions informed by ASI surveys and Dhavalikar architectural analyses. Deccan trap basalt PBR materials synthesized via procedural shader maps.</small>
+</footer>
+
+<!-- Three.js from cdnjs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+(()=>{
+'use strict';
+const RM = matchMedia('(prefers-reduced-motion:reduce)').matches;
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const cl = (v,a,b) => Math.min(b,Math.max(a,v)), L = (a,b,s) => a+(b-a)*s, sm = x => x*x*(3-2*x);
+
+// Animated split text
+$$('[data-sp]').forEach(h=>{
+  const t = h.textContent.trim();
+  h.setAttribute('aria-label', t);
+  h.innerHTML = t.split(/\s+/).map((w,n)=>`<span class="w" aria-hidden="true"><i style="--d:${n*65}ms">${w}</i></span>`).join(' ');
+});
+
+const secs = $$('.s'), N = secs.length, rail = $('#rail');
+secs.forEach((s,i)=>{
+  const a = document.createElement('a');
+  a.href = '#s'+i;
+  a.setAttribute('aria-label', 'Chapter '+(i+1));
+  a.tabIndex = -1;
+  rail.appendChild(a);
+});
+const dots = [...rail.children];
+const io = new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('on',e.isIntersecting)),{threshold:.32});
+secs.forEach(s=>io.observe(s.querySelector('.pin')));
+
+// Menus and Modals
+const menu = $('#menu'), mb = $('#mb'), mxBtn = $('#mx');
+const tm = o => { menu.classList.toggle('open',o); mb.setAttribute('aria-expanded',o); };
+mb.onclick = () => tm(true);
+mxBtn.onclick = () => tm(false);
+menu.onclick = e => { if(e.target.tagName==='A'||e.target.parentNode.tagName==='A') tm(false); };
+
+// Historical Mysteries Modal
+const mystModal = $('#mysteries'), btnMysteries = $('#btn-mysteries'), mystClose = $('#myst-close-btn');
+const toggleMysteries = open => {
+  mystModal.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+};
+btnMysteries.onclick = () => toggleMysteries(true);
+mystClose.onclick = () => toggleMysteries(false);
+$('#menu-myst-link').onclick = (e) => { e.preventDefault(); tm(false); toggleMysteries(true); };
+$('#ft-myst-link').onclick = (e) => { e.preventDefault(); toggleMysteries(true); };
+
+addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    tm(false);
+    toggleMysteries(false);
+    closeHotspotCard();
+  }
+});
+
+// Interactive chapter tabs
+const sub = {4:0, 5:0};
+$$('[data-tabs]').forEach(box=>{
+  const si = +box.dataset.tabs, bs = [...box.querySelectorAll('.tabs button')], ps = [...box.querySelectorAll('.tc')];
+  bs.forEach((b,j)=>b.onclick=()=>{
+    sub[si] = j;
+    bs.forEach((x,k)=>{x.classList.toggle('a',k===j);x.setAttribute('aria-pressed',k===j)});
+    ps.forEach((p,k)=>{p.hidden=k!==j;if(k===j){p.classList.remove('rv');void p.offsetWidth;p.classList.add('rv')}});
+  });
+});
+
+const ld = $('#ld'), ldMsg = $('#ld-msg');
+function fail(){document.documentElement.classList.add('nogl');ld.classList.add('x')}
+if(!window.THREE){fail();return}
+
+let R;
+try{
+  R = new THREE.WebGLRenderer({canvas:$('#gl'),antialias:true,powerPreference:'high-performance'});
+}catch(e){fail();return}
+
+const mob = innerWidth < 760;
+R.setPixelRatio(Math.min(devicePixelRatio||1, mob ? 1.5 : 1.85));
+R.shadowMap.enabled = true;
+R.shadowMap.type = THREE.PCFSoftShadowMap;
+R.outputEncoding = THREE.sRGBEncoding;
+R.toneMapping = THREE.ACESFilmicToneMapping;
+R.toneMappingExposure = 1.0;
+R.localClippingEnabled = true;
+
+const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(48, 1, 0.5, 900);
+scene.fog = new THREE.FogExp2(0x1a1410, 0.014);
+scene.background = new THREE.Color(0x1a1410);
+
+const disp = [];
+
+/* =========================================================
+   PROCEDURAL PBR STONE TEXTURE SYNTHESIZER
+   ========================================================= */
+function cv(w,h,fn){const c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'),w,h);return c}
+
+// 1. Dressed Basalt Stone Albedo
+const basaltAlbedo = new THREE.CanvasTexture(cv(512,512,(ctx,w,h)=>{
+  // Deep Deccan basalt base
+  ctx.fillStyle='#36312a';
+  ctx.fillRect(0,0,w,h);
+
+  // Micro-granular flecks (feldspar, pyroxene)
+  for(let i=0;i<16000;i++){
+    const val = Math.random();
+    ctx.fillStyle = val > 0.6 ? 'rgba(210,195,170,0.12)' : (val > 0.3 ? 'rgba(20,17,14,0.18)' : 'rgba(160,115,70,0.08)');
+    ctx.fillRect(Math.random()*w, Math.random()*h, 1.5, 1.5);
+  }
+
+  // Chisel dressing striations
+  for(let i=0;i<50;i++){
+    ctx.fillStyle='rgba(15,12,10,0.08)';
+    const y = Math.random()*h;
+    ctx.fillRect(0, y, w, 1+Math.random()*2);
+  }
+
+  // Ancient lime-plaster (chunam) white weathering remnants
+  for(let i=0;i<18;i++){
+    const rg = ctx.createRadialGradient(Math.random()*w,Math.random()*h,2,Math.random()*w,Math.random()*h,40+Math.random()*60);
+    rg.addColorStop(0,'rgba(235,230,220,0.08)');
+    rg.addColorStop(1,'rgba(235,230,220,0)');
+    ctx.fillStyle=rg;
+    ctx.fillRect(0,0,w,h);
+  }
+}));
+basaltAlbedo.wrapS = basaltAlbedo.wrapT = THREE.RepeatWrapping;
+basaltAlbedo.repeat.set(3,3);
+basaltAlbedo.encoding = THREE.sRGBEncoding;
+disp.push(basaltAlbedo);
+
+// 2. Basalt Normal Map
+const basaltNormal = new THREE.CanvasTexture(cv(512,512,(ctx,w,h)=>{
+  ctx.fillStyle='#8080ff'; // default flat normal
+  ctx.fillRect(0,0,w,h);
+  for(let i=0;i<8000;i++){
+    const nx = 128 + Math.floor((Math.random()-0.5)*50);
+    const ny = 128 + Math.floor((Math.random()-0.5)*50);
+    ctx.fillStyle = `rgb(${nx},${ny},240)`;
+    ctx.fillRect(Math.random()*w, Math.random()*h, 2, 2);
+  }
+  // Chisel tool grooves in normal
+  for(let i=0;i<40;i++){
+    const y = Math.random()*h;
+    ctx.fillStyle='rgb(110,140,250)';
+    ctx.fillRect(0, y, w, 2);
+  }
+}));
+basaltNormal.wrapS = basaltNormal.wrapT = THREE.RepeatWrapping;
+basaltNormal.repeat.set(3,3);
+disp.push(basaltNormal);
+
+// 3. Rough Excavated Basalt Cliff Scarp Texture
+const cliffAlbedo = new THREE.CanvasTexture(cv(512,512,(ctx,w,h)=>{
+  // Deccan trap volcanic basalt strata
+  ctx.fillStyle='#2b2621';
+  ctx.fillRect(0,0,w,h);
+  // Horizontal basalt lava flows
+  for(let y=0; y<h; y+=24){
+    const shift = (Math.random()-0.5)*18;
+    ctx.fillStyle = `rgba(${38+shift},${33+shift},${28+shift},0.6)`;
+    ctx.fillRect(0,y,w,20+Math.random()*8);
+  }
+  // Vertical quarry chisel lines
+  for(let x=0; x<w; x+=14){
+    ctx.fillStyle = 'rgba(12,10,8,0.22)';
+    ctx.fillRect(x+Math.random()*4, 0, 1.5, h);
+  }
+  // Weathering iron streaks
+  for(let i=0;i<25;i++){
+    ctx.fillStyle='rgba(145,95,50,0.09)';
+    ctx.fillRect(Math.random()*w, Math.random()*h, 30+Math.random()*60, 6);
+  }
+}));
+cliffAlbedo.wrapS = cliffAlbedo.wrapT = THREE.RepeatWrapping;
+cliffAlbedo.repeat.set(2,4);
+cliffAlbedo.encoding = THREE.sRGBEncoding;
+disp.push(cliffAlbedo);
+
+// 4. Courtyard Stone Flagging Texture
+const courtAlbedo = new THREE.CanvasTexture(cv(512,512,(ctx,w,h)=>{
+  ctx.fillStyle='#302b25';
+  ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle='rgba(15,12,10,0.35)';
+  ctx.lineWidth=2;
+  const sz = 32;
+  for(let x=0;x<w;x+=sz){
+    for(let y=0;y<h;y+=sz){
+      ctx.fillStyle = Math.random()<.5 ? 'rgba(55,48,40,0.2)' : 'rgba(35,30,25,0.2)';
+      ctx.fillRect(x+1,y+1,sz-2,sz-2);
+      ctx.strokeRect(x,y,sz,sz);
+    }
+  }
+}));
+courtAlbedo.wrapS = courtAlbedo.wrapT = THREE.RepeatWrapping;
+courtAlbedo.repeat.set(8,8);
+courtAlbedo.encoding = THREE.sRGBEncoding;
+disp.push(courtAlbedo);
+
+// 5. Relief / Frieze Detail Texture
+const reliefAlbedo = new THREE.CanvasTexture(cv(512,256,(ctx,w,h)=>{
+  ctx.fillStyle='#36312a';
+  ctx.fillRect(0,0,w,h);
+  // Decorative frieze band carvings
+  ctx.fillStyle='rgba(15,12,10,0.4)';
+  for(let x=0; x<w; x+=28){
+    // Alternating kudu arches / elephant silhouettes
+    ctx.beginPath();
+    ctx.arc(x+14, 50, 10, Math.PI, 0, false);
+    ctx.fill();
+    ctx.fillRect(x+6, 50, 16, 25);
+    // Lower narrative frieze figures
+    ctx.fillRect(x+8, 120, 12, 35);
+    ctx.beginPath();
+    ctx.arc(x+14, 115, 6, 0, Math.PI*2);
+    ctx.fill();
+  }
+  // Weathered highlights
+  for(let i=0;i<4000;i++){
+    ctx.fillStyle='rgba(215,185,138,0.07)';
+    ctx.fillRect(Math.random()*w, Math.random()*h, 1.5, 1.5);
+  }
+}));
+reliefAlbedo.wrapS = reliefAlbedo.wrapT = THREE.RepeatWrapping;
+reliefAlbedo.repeat.set(4,1);
+reliefAlbedo.encoding = THREE.sRGBEncoding;
+disp.push(reliefAlbedo);
+
+// Materials
+const stoneMat = new THREE.MeshStandardMaterial({
+  map: basaltAlbedo,
+  normalMap: basaltNormal,
+  normalScale: new THREE.Vector2(0.75, 0.75),
+  color: 0xe2d1ba,
+  roughness: 0.88,
+  metalness: 0.04
+});
+
+const reliefMat = new THREE.MeshStandardMaterial({
+  map: reliefAlbedo,
+  normalMap: basaltNormal,
+  normalScale: new THREE.Vector2(0.85, 0.85),
+  color: 0xdec7aa,
+  roughness: 0.85,
+  metalness: 0.05
+});
+
+const cliffMat = new THREE.MeshStandardMaterial({
+  map: cliffAlbedo,
+  normalMap: basaltNormal,
+  normalScale: new THREE.Vector2(0.95, 0.95),
+  color: 0xb8a892,
+  roughness: 0.95,
+  metalness: 0.02
+});
+
+const courtMat = new THREE.MeshStandardMaterial({
+  map: courtAlbedo,
+  color: 0xb2a28c,
+  roughness: 0.95,
+  metalness: 0.02
+});
+
+const goldMat = new THREE.MeshStandardMaterial({
+  color: 0xd49a46,
+  roughness: 0.25,
+  metalness: 0.82
+});
+
+const plane = new THREE.Plane(new THREE.Vector3(0,-1,0), 34);
+const rockMat = new THREE.MeshStandardMaterial({
+  map: cliffAlbedo,
+  color: 0xe2d4ba,
+  roughness: 0.98,
+  transparent: true,
+  opacity: 0,
+  clippingPlanes: [plane]
+});
+
+disp.push(stoneMat, reliefMat, cliffMat, courtMat, goldMat, rockMat);
+
+/* =========================================================
+   MONUMENTAL ARCHITECTURAL 3D RECONSTRUCTION
+   ========================================================= */
+const G = new THREE.Group();
+scene.add(G);
+
+// Geometry tracker helper
+function mesh(g, m, x, y, z, rx=0, ry=0, rz=0, cast=true, recv=true, parent=G){
+  disp.push(g);
+  const o = new THREE.Mesh(g, m);
+  o.position.set(x,y,z);
+  if(rx||ry||rz) o.rotation.set(rx,ry,rz);
+  o.castShadow = cast;
+  o.receiveShadow = recv;
+  parent.add(o);
+  return o;
+}
+
+function bx(w,h,d,x,y,z,m=stoneMat,p=G){
+  return mesh(new THREE.BoxGeometry(w,h,d), m, x,y,z, 0,0,0, true, true, p);
+}
+
+// Courtyard Bedrock Floor
+const groundPlane = new THREE.PlaneGeometry(600,600);
+disp.push(groundPlane);
+const gMesh = new THREE.Mesh(groundPlane, courtMat);
+gMesh.rotation.x = -Math.PI/2;
+gMesh.position.y = -0.05;
+gMesh.receiveShadow = true;
+G.add(gMesh);
+
+/* --- 1. EXCAVATED BASALT CLIFF SCARP --- */
+// Kailasa was cut into an 82m x 46m trench in the western mountain scarp.
+// Rear cliff is 33m high; flanks slope down towards the west entrance (~16m).
+const cliffGroup = new THREE.Group();
+G.add(cliffGroup);
+
+// Rear East Scarp (33m high)
+bx(64, 34, 14, 0, 17, -38, cliffMat, cliffGroup);
+bx(68, 3, 16, 0, 33, -38, cliffMat, cliffGroup); // stepped rim
+
+// North Scarp Wall (sloping from 33m to 16m)
+bx(12, 34, 46, -26, 17, -15, cliffMat, cliffGroup);
+bx(12, 22, 38, -26, 11, 23, cliffMat, cliffGroup);
+bx(14, 3, 84, -26, 33, 4, cliffMat, cliffGroup); // upper hillside ledge
+
+// South Scarp Wall (sloping from 33m to 16m)
+bx(12, 34, 46, 26, 17, -15, cliffMat, cliffGroup);
+bx(12, 22, 38, 26, 11, 23, cliffMat, cliffGroup);
+bx(14, 3, 84, 26, 33, 4, cliffMat, cliffGroup);
+
+// Natural Charanandri surrounding mountain backdrop
+for(let i=0; i<10; i++){
+  const r = 60 + i*10, h = 38 + i*6;
+  const cg = new THREE.ConeGeometry(r, h, 6);
+  disp.push(cg);
+  const ang = i*0.65 + 0.2;
+  const dist = 220 + (i%3)*30;
+  const cm = new THREE.Mesh(cg, new THREE.MeshStandardMaterial({map:cliffAlbedo, color:0x221d18, roughness:1}));
+  disp.push(cm.material);
+  cm.position.set(Math.cos(ang)*dist, 16, Math.sin(ang)*dist - 30);
+  cliffGroup.add(cm);
+}
+
+/* --- 2. ROCK-CUT TWO-STOREY CLOISTERS --- */
+// Continuous pillared arcades excavated directly into the cliff walls.
+function createCloisterPillars(startX, startZ, endX, endZ, count, yBase=0){
+  for(let i=0; i<=count; i++){
+    const t = i/count;
+    const px = L(startX, endX, t);
+    const pz = L(startZ, endZ, t);
+    // Lower tier pillar
+    bx(0.7, 4.8, 0.7, px, yBase + 2.4, pz, stoneMat);
+    bx(1.0, 0.4, 1.0, px, yBase + 4.9, pz, stoneMat); // capital
+    // Upper gallery pillar
+    bx(0.65, 4.2, 0.65, px, yBase + 7.5, pz, stoneMat);
+    bx(0.9, 0.35, 0.9, px, yBase + 9.7, pz, stoneMat);
+  }
+}
+// North Cloisters
+createCloisterPillars(-19.5, -28, -19.5, 16, 11);
+bx(3.2, 0.7, 47, -19.5, 5.2, -6, stoneMat);
+bx(3.2, 0.7, 47, -19.5, 10.0, -6, stoneMat);
+// South Cloisters
+createCloisterPillars(19.5, -28, 19.5, 16, 11);
+bx(3.2, 0.7, 47, 19.5, 5.2, -6, stoneMat);
+bx(3.2, 0.7, 47, 19.5, 10.0, -6, stoneMat);
+// Rear East Cloisters
+createCloisterPillars(-18, -30, 18, -30, 9);
+bx(39, 0.7, 3.2, 0, 5.2, -30, stoneMat);
+bx(39, 0.7, 3.2, 0, 10.0, -30, stoneMat);
+
+/* --- 3. ENTRANCE GOPURAM (SCREEN GATEWAY) --- */
+// Two-storeyed rock-cut gateway (prākāra) with central vaulted passage.
+const gopuram = new THREE.Group();
+G.add(gopuram);
+
+// Flanking pylons
+bx(5.5, 11, 4.5, -6.5, 5.5, 27, stoneMat, gopuram);
+bx(5.5, 11, 4.5, 6.5, 5.5, 27, stoneMat, gopuram);
+// Outer screen walls
+bx(10, 8.5, 3.5, -14, 4.25, 27, stoneMat, gopuram);
+bx(10, 8.5, 3.5, 14, 4.25, 27, stoneMat, gopuram);
+// Niches with Dvarapalas and River Goddesses
+bx(2.2, 4.2, 0.6, -6.5, 4.2, 29.3, reliefMat, gopuram);
+bx(2.2, 4.2, 0.6, 6.5, 4.2, 29.3, reliefMat, gopuram);
+bx(3.0, 3.8, 0.6, -14, 4.0, 28.8, reliefMat, gopuram);
+bx(3.0, 3.8, 0.6, 14, 4.0, 28.8, reliefMat, gopuram);
+// Projecting Kapota Cornices with Kudu Arches
+bx(19, 0.9, 5.2, 0, 11.45, 27, stoneMat, gopuram);
+bx(16, 0.8, 4.6, 0, 12.3, 27, stoneMat, gopuram);
+// Upper Nagarkhana Gallery
+bx(13, 3.2, 4.0, 0, 14.2, 27, stoneMat, gopuram);
+// Barrel-vaulted Shala Roof (Wagon-vault shikhara)
+{
+  const shalaGeom = new THREE.CylinderGeometry(1.9, 1.9, 11, 16);
+  disp.push(shalaGeom);
+  const shala = mesh(shalaGeom, stoneMat, 0, 16.3, 27, 0, 0, Math.PI/2, true, true, gopuram);
+  // Ridge Kalasas
+  for(let k=-4; k<=4; k+=2){
+    const kg = new THREE.ConeGeometry(0.22, 0.6, 8);
+    mesh(kg, goldMat, k, 17.5, 27, 0, 0, 0, false, false, gopuram);
+  }
+}
+
+/* --- 4. NANDI MANDAPA (PAVILION OF THE DIVINE BULL) --- */
+const nandiMandapa = new THREE.Group();
+G.add(nandiMandapa);
+
+// Raised Adhisthana Plinth
+bx(8.5, 2.8, 8.5, 0, 1.4, 13, stoneMat, nandiMandapa);
+// Plinth mouldings (Padma & Kumuda)
+bx(9.2, 0.45, 9.2, 0, 0.5, 13, stoneMat, nandiMandapa);
+bx(8.9, 0.4, 8.9, 0, 1.8, 13, stoneMat, nandiMandapa);
+bx(9.0, 0.4, 9.0, 0, 2.7, 13, stoneMat, nandiMandapa);
+
+// Dravidian Pillars (4 Massive Corner + 4 Intermediate)
+const pPositions = [
+  [-3.2, -3.2], [3.2, -3.2], [-3.2, 3.2], [3.2, 3.2],
+  [0, -3.2], [0, 3.2], [-3.2, 0], [3.2, 0]
+];
+pPositions.forEach(p => {
+  // Base
+  bx(0.9, 0.6, 0.9, p[0], 3.1, 13+p[1], stoneMat, nandiMandapa);
+  // Faceted shaft
+  const cyl = new THREE.CylinderGeometry(0.34, 0.38, 3.6, 16);
+  mesh(cyl, stoneMat, p[0], 5.1, 13+p[1], 0, 0, 0, true, true, nandiMandapa);
+  // Kalasa bulbous cushion & Taranga corbel bracket
+  bx(1.2, 0.4, 0.7, p[0], 7.0, 13+p[1], stoneMat, nandiMandapa);
+});
+
+// Entablature and Stepped Pyramidal Roof
+bx(9.4, 0.8, 9.4, 0, 7.5, 13, stoneMat, nandiMandapa);
+bx(8.0, 1.2, 8.0, 0, 8.4, 13, stoneMat, nandiMandapa);
+bx(6.2, 1.0, 6.2, 0, 9.4, 13, stoneMat, nandiMandapa);
+bx(4.2, 0.8, 4.2, 0, 10.2, 13, stoneMat, nandiMandapa);
+// Crowning pot finial
+{
+  const kCone = new THREE.ConeGeometry(0.6, 1.2, 10);
+  mesh(kCone, goldMat, 0, 11.1, 13, 0, 0, 0, true, false, nandiMandapa);
+}
+
+// Sculpted Monolithic Recumbent Nandi Bull
+// Facing east towards the inner sanctum lingam
+{
+  const nandiGroup = new THREE.Group();
+  nandiMandapa.add(nandiGroup);
+  nandiGroup.position.set(0, 2.8, 13);
+
+  // Pedestal
+  bx(2.8, 0.4, 4.2, 0, 0.2, 0, stoneMat, nandiGroup);
+  // Recumbent body (rounded muscular torso)
+  const bGeom = new THREE.CylinderGeometry(0.85, 0.95, 2.8, 12);
+  mesh(bGeom, stoneMat, 0, 0.95, 0, Math.PI/2, 0, 0, true, true, nandiGroup);
+  // Prominent Hump (Kakuda)
+  const hGeom = new THREE.SphereGeometry(0.55, 12, 10);
+  disp.push(hGeom);
+  const hump = mesh(hGeom, stoneMat, 0, 1.6, 0.2, 0, 0, 0, true, true, nandiGroup);
+  hump.scale.set(0.8, 1.1, 0.9);
+  // Sculpted head turned east (towards negative Z)
+  const headGeom = new THREE.BoxGeometry(0.9, 0.95, 1.2);
+  mesh(headGeom, stoneMat, 0, 1.35, -1.5, 0.2, 0, 0, true, true, nandiGroup);
+  // Curved horns
+  const hornL = new THREE.ConeGeometry(0.12, 0.65, 8);
+  mesh(hornL, stoneMat, -0.4, 1.9, -1.3, -0.4, 0, -0.3, true, false, nandiGroup);
+  const hornR = new THREE.ConeGeometry(0.12, 0.65, 8);
+  mesh(hornR, stoneMat, 0.4, 1.9, -1.3, -0.4, 0, 0.3, true, false, nandiGroup);
+  // Bell necklace garland
+  const gRing = new THREE.TorusGeometry(0.8, 0.12, 8, 16);
+  mesh(gRing, stoneMat, 0, 1.0, -0.9, Math.PI/3, 0, 0, false, false, nandiGroup);
+}
+
+/* --- 5. MONOLITHIC OVERHEAD ROCK BRIDGES --- */
+// Rock bridges left intact during top-down excavation connecting:
+// 1) Gopuram upper level to Nandi Mandapa
+// 2) Nandi Mandapa to Maha-mandapa porch
+const bridges = new THREE.Group();
+G.add(bridges);
+
+// Bridge 1 (Gopuram <-> Nandi)
+bx(2.6, 1.1, 7.8, 0, 7.4, 19.8, stoneMat, bridges);
+// Arch soffit underneath
+{
+  const aGeom = new THREE.CylinderGeometry(1.6, 1.6, 2.5, 12, 1, false, 0, Math.PI);
+  mesh(aGeom, stoneMat, 0, 6.7, 19.8, 0, 0, Math.PI/2, false, true, bridges);
+}
+
+// Bridge 2 (Nandi <-> Maha-mandapa Porch)
+bx(2.6, 1.1, 6.8, 0, 7.4, 5.8, stoneMat, bridges);
+{
+  const aGeom2 = new THREE.CylinderGeometry(1.6, 1.6, 2.5, 12, 1, false, 0, Math.PI);
+  mesh(aGeom2, stoneMat, 0, 6.7, 5.8, 0, 0, Math.PI/2, false, true, bridges);
+}
+
+/* --- 6. MONOLITHIC DHWAJA-STAMBHAS (VICTORY PILLARS) --- */
+// Two titanic 15.5m high freestanding victory columns flanking the courtyard.
+function createDhwajaStambha(x, z){
+  const stambha = new THREE.Group();
+  G.add(stambha);
+  // Stepped adhisthana pedestal with lion carvings
+  bx(2.8, 0.8, 2.8, x, 0.4, z, stoneMat, stambha);
+  bx(2.3, 1.6, 2.3, x, 1.6, z, stoneMat, stambha);
+  bx(2.5, 0.5, 2.5, x, 2.6, z, stoneMat, stambha);
+  // Lower square shaft
+  bx(1.5, 3.2, 1.5, x, 4.4, z, stoneMat, stambha);
+  // 16-sided fluted monolithic shaft (15m high)
+  const shaftGeom = new THREE.CylinderGeometry(0.55, 0.72, 9.5, 16);
+  mesh(shaftGeom, stoneMat, x, 10.6, z, 0, 0, 0, true, true, stambha);
+  // Bulbous kalasa & lotus capital
+  const capGeom = new THREE.CylinderGeometry(0.95, 0.6, 0.7, 16);
+  mesh(capGeom, stoneMat, x, 15.6, z, 0, 0, 0, true, true, stambha);
+  bx(1.3, 0.35, 1.3, x, 16.1, z, stoneMat, stambha);
+  // Shaivite Trishula (Trident) Finial
+  bx(0.2, 1.6, 0.2, x, 17.0, z, goldMat, stambha);
+  bx(0.9, 0.18, 0.18, x, 16.7, z, goldMat, stambha);
+  bx(0.16, 0.9, 0.16, x-0.4, 17.1, z, goldMat, stambha);
+  bx(0.16, 0.9, 0.16, x+0.4, 17.1, z, goldMat, stambha);
+}
+createDhwajaStambha(-10.2, 9.5);
+createDhwajaStambha(10.2, 9.5);
+
+/* --- 7. COURTYARD FREESTANDING MONOLITHIC ELEPHANTS --- */
+// Life-sized rock-cut tuskers carved in the round, facing into the courtyard.
+function createElephantStatue(x, y, z, rotY=0){
+  const el = new THREE.Group();
+  G.add(el);
+  el.position.set(x, y, z);
+  el.rotation.y = rotY;
+
+  // Plinth
+  bx(2.6, 0.45, 4.6, 0, 0.22, 0, stoneMat, el);
+  // Torso / body (barrel-shaped)
+  const bodyGeom = new THREE.CylinderGeometry(1.15, 1.3, 3.2, 12);
+  const b = mesh(bodyGeom, stoneMat, 0, 1.9, 0, Math.PI/2, 0, 0, true, true, el);
+  b.scale.set(0.95, 1.0, 1.15);
+  // Head & cranial domes (kumbhas)
+  const headGeom = new THREE.SphereGeometry(0.85, 12, 10);
+  const h = mesh(headGeom, stoneMat, 0, 2.4, -1.6, 0, 0, 0, true, true, el);
+  h.scale.set(0.9, 1.05, 0.95);
+  // Ears
+  bx(0.2, 0.9, 0.8, -0.85, 2.3, -1.5, stoneMat, el);
+  bx(0.2, 0.9, 0.8, 0.85, 2.3, -1.5, stoneMat, el);
+  // Trunk curving downward and curling up at tip
+  const trunk1 = new THREE.CylinderGeometry(0.32, 0.22, 1.8, 10);
+  mesh(trunk1, stoneMat, 0, 1.4, -2.2, 0.2, 0, 0, true, true, el);
+  const trunkTip = new THREE.CylinderGeometry(0.2, 0.14, 0.8, 10);
+  mesh(trunkTip, stoneMat, 0, 0.6, -2.1, -0.6, 0, 0, true, true, el);
+  // Tusks
+  const tuskL = new THREE.ConeGeometry(0.1, 0.9, 8);
+  mesh(tuskL, stoneMat, -0.38, 1.8, -2.1, -0.4, 0, -0.15, true, false, el);
+  const tuskR = new THREE.ConeGeometry(0.1, 0.9, 8);
+  mesh(tuskR, stoneMat, 0.38, 1.8, -2.1, -0.4, 0, 0.15, true, false, el);
+  // Columnar legs
+  const legPositions = [[-0.65,-0.9], [0.65,-0.9], [-0.65,1.0], [0.65,1.0]];
+  legPositions.forEach(lp => {
+    const lg = new THREE.CylinderGeometry(0.36, 0.42, 1.5, 10);
+    mesh(lg, stoneMat, lp[0], 0.95, lp[1], 0, 0, 0, true, true, el);
+  });
+  // Caparison blanket
+  bx(1.9, 0.12, 2.2, 0, 2.65, 0, reliefMat, el);
+}
+createElephantStatue(-10.5, 0, 1.0, Math.PI/2 - 0.2); // North elephant
+createElephantStatue(10.5, 0, 1.0, -Math.PI/2 + 0.2); // South elephant
+
+/* --- 8. THE MAIN TEMPLE: MONUMENTAL ADHISTHANA (ELEPHANT PLINTH) --- */
+const mainTemple = new THREE.Group();
+G.add(mainTemple);
+
+// Continuous Plinth: 8m high bearing the Great Hall and Vimana
+// Width: 18m, Length: 32m (from z = +3 to z = -25)
+bx(18, 4.2, 30, 0, 2.1, -10, stoneMat, mainTemple);
+
+// Plinth Mouldings (Padma lotus cyma, Kumuda half-round torus, Pattika)
+bx(19.2, 0.5, 31.2, 0, 0.3, -10, stoneMat, mainTemple);
+bx(18.6, 0.4, 30.6, 0, 0.9, -10, stoneMat, mainTemple);
+bx(18.8, 0.45, 30.8, 0, 3.8, -10, stoneMat, mainTemple);
+bx(19.2, 0.6, 31.2, 0, 4.4, -10, stoneMat, mainTemple);
+
+// THE MONUMENTAL ELEPHANT & VYALA FRIEZE
+// High-relief row of life-sized elephants and lions around the base perimeter
+function createElephantFrieze(){
+  // South side plinth elephants
+  for(let z = 3; z >= -23; z -= 3.2){
+    // Elephant head and forelegs projecting from the wall
+    bx(1.2, 1.8, 1.8, 9.4, 2.0, z, stoneMat, mainTemple);
+    const head = new THREE.SphereGeometry(0.65, 8, 8);
+    mesh(head, stoneMat, 9.8, 2.4, z, 0, 0, 0, true, true, mainTemple);
+    const trunk = new THREE.CylinderGeometry(0.18, 0.1, 1.2, 8);
+    mesh(trunk, stoneMat, 10.2, 1.8, z, 0, 0, -0.3, true, true, mainTemple);
+  }
+  // North side plinth elephants
+  for(let z = 3; z >= -23; z -= 3.2){
+    bx(1.2, 1.8, 1.8, -9.4, 2.0, z, stoneMat, mainTemple);
+    const head = new THREE.SphereGeometry(0.65, 8, 8);
+    mesh(head, stoneMat, -9.8, 2.4, z, 0, 0, 0, true, true, mainTemple);
+    const trunk = new THREE.CylinderGeometry(0.18, 0.1, 1.2, 8);
+    mesh(trunk, stoneMat, -10.2, 1.8, z, 0, 0, 0.3, true, true, mainTemple);
+  }
+  // West front plinth elephants flanking the grand stairway
+  [-6.5, -4.2, 4.2, 6.5].forEach(x => {
+    bx(1.6, 2.0, 1.4, x, 2.0, 4.8, stoneMat, mainTemple);
+    const head = new THREE.SphereGeometry(0.7, 8, 8);
+    mesh(head, stoneMat, x, 2.5, 5.4, 0, 0, 0, true, true, mainTemple);
+    const trunk = new THREE.CylinderGeometry(0.2, 0.12, 1.3, 8);
+    mesh(trunk, stoneMat, x, 1.8, 5.8, 0.3, 0, 0, true, true, mainTemple);
+  });
+}
+createElephantFrieze();
+
+/* --- 9. RAVANA SHAKING MOUNT KAILASA (RAVANANUGRAHA RELIEF) --- */
+// Celebrated multi-tiered sculptural panel carved on the south plinth wall
+{
+  const ravanaPanel = new THREE.Group();
+  mainTemple.add(ravanaPanel);
+  ravanaPanel.position.set(9.2, 2.3, -10);
+
+  // Recessed architectural niche flanked by pilasters
+  bx(0.6, 3.4, 4.8, 0, 0, 0, stoneMat, ravanaPanel);
+  bx(0.8, 3.6, 0.45, 0.1, 0, -2.4, stoneMat, ravanaPanel);
+  bx(0.8, 3.6, 0.45, 0.1, 0, 2.4, stoneMat, ravanaPanel);
+
+  // High-relief sculpted figure composition
+  // Lower tier: Multiarmed Ravana straining beneath the mountain
+  bx(0.7, 1.2, 1.8, 0.3, -0.9, 0, reliefMat, ravanaPanel);
+  // Spread arms
+  bx(0.3, 0.25, 2.6, 0.45, -0.6, 0, reliefMat, ravanaPanel);
+  bx(0.3, 0.25, 2.4, 0.45, -0.3, 0, reliefMat, ravanaPanel);
+  // Mountain crags and rock clefts
+  bx(0.6, 0.6, 3.8, 0.25, 0.1, 0, reliefMat, ravanaPanel);
+  // Upper tier: Seated Shiva and Parvati on Mount Kailash
+  bx(0.5, 1.1, 0.8, 0.3, 0.9, -0.5, reliefMat, ravanaPanel); // Shiva in sukhasana
+  bx(0.45, 0.9, 0.6, 0.3, 0.8, 0.4, reliefMat, ravanaPanel); // Parvati clinging to Shiva
+  // Attendant ganas
+  bx(0.3, 0.5, 0.4, 0.3, 0.6, 1.2, reliefMat, ravanaPanel);
+  bx(0.3, 0.5, 0.4, 0.3, 0.6, -1.2, reliefMat, ravanaPanel);
+}
+
+// Epic Narrative Bands (Ramayana on South plinth, Mahabharata on North plinth)
+bx(0.25, 0.65, 14, 9.1, 4.1, -12, reliefMat, mainTemple);
+bx(0.25, 0.65, 14, -9.1, 4.1, -12, reliefMat, mainTemple);
+
+/* --- 10. MAHA-MANDAPA (GREAT HYPOSTYLE HALL) --- */
+// Raised above the plinth at y = 4.6. Houses 16 Dravidian columns in 4 groups of 4.
+const mandapa = new THREE.Group();
+mainTemple.add(mandapa);
+mandapa.position.set(0, 4.6, -2);
+
+// Mukhamandapa (Entrance Porch facing west)
+bx(6.5, 5.5, 4.5, 0, 2.75, 4.2, stoneMat, mandapa);
+// Porch columns
+[-2.2, 2.2].forEach(x => {
+  bx(0.8, 5.2, 0.8, x, 2.6, 6.2, stoneMat, mandapa);
+});
+
+// Great Hall Main Body (14m x 14m)
+bx(15, 6.0, 14, 0, 3.0, -4.5, stoneMat, mandapa);
+
+// Hall Wall Pilasters and Niche Shrines (Devakoshthas with Shaivite Murties)
+[-7.55, 7.55].forEach(x => {
+  for(let z = -9.5; z <= 0.5; z += 3.2){
+    bx(0.4, 5.2, 0.65, x, 2.6, z, stoneMat, mandapa);
+    // Sculptural deity relief inside niche
+    bx(0.3, 3.2, 1.4, x * 0.98, 2.4, z + 1.6, reliefMat, mandapa);
+  }
+});
+
+// Projecting Kapota Cornice with Kudu Horseshoe Arches
+bx(16.4, 0.7, 15.4, 0, 6.2, -4.5, stoneMat, mandapa);
+bx(15.6, 0.5, 14.6, 0, 6.7, -4.5, stoneMat, mandapa);
+
+// Mandapa Roof Parapet & Corner Couchant Nandis
+const roofCorners = [[-6.5,-10.5], [6.5,-10.5], [-6.5,1.5], [6.5,1.5]];
+roofCorners.forEach(rc => {
+  // Couchant Nandi on corner
+  bx(1.2, 0.8, 1.8, rc[0], 7.3, rc[1], stoneMat, mandapa);
+  const h = new THREE.SphereGeometry(0.35, 8, 8);
+  mesh(h, stoneMat, rc[0], 7.8, rc[1]-0.6, 0, 0, 0, true, false, mandapa);
+});
+// Lion guardians along central roof ridge
+bx(1.4, 1.4, 1.4, 0, 7.6, -4.5, stoneMat, mandapa);
+
+/* --- 11. THE MONUMENTAL DRAVIDIAN VIMANA (CENTRAL TOWER) --- */
+// 32.6m high stepped pyramidal tower rising over the Garbhagriha (Sanctum).
+// 3 receding Talas (tiers) + Hara miniature pavilions + Griva + Shikhara + Kalasam
+const vimana = new THREE.Group();
+mainTemple.add(vimana);
+vimana.position.set(0, 4.6, -17);
+
+// Garbhagriha Sanctuary Walls (Tala 1 Base)
+bx(13.2, 6.8, 13.2, 0, 3.4, 0, stoneMat, vimana);
+// Sanctum niches with colossal deity reliefs
+bx(13.4, 4.2, 3.6, 0, 3.2, 0, reliefMat, vimana);
+bx(3.6, 4.2, 13.4, 0, 3.2, 0, reliefMat, vimana);
+
+// Tala 1 Hara (Enclosure of miniature pavilions)
+bx(14.6, 0.8, 14.6, 0, 7.0, 0, stoneMat, vimana);
+function createHaraParapet(width, y, count){
+  // Corner square miniature shrines (Kutas)
+  const half = width/2;
+  [[-half,-half], [half,-half], [-half,half], [half,half]].forEach(p=>{
+    bx(1.6, 1.8, 1.6, p[0], y+0.9, p[1], stoneMat, vimana);
+    const kDom = new THREE.SphereGeometry(0.9, 8, 8);
+    mesh(kDom, stoneMat, p[0], y+2.1, p[1], 0, 0, 0, true, false, vimana);
+  });
+  // Central oblong miniature shrines (Shalas with barrel vaults)
+  [[0,-half], [0,half], [-half,0], [half,0]].forEach(p=>{
+    bx(p[0]===0?3.2:1.4, 1.6, p[1]===0?3.2:1.4, p[0], y+0.8, p[1], stoneMat, vimana);
+    const shCyl = new THREE.CylinderGeometry(0.8, 0.8, p[0]===0?3.0:1.4, 10);
+    mesh(shCyl, stoneMat, p[0], y+1.8, p[1], 0, 0, p[0]===0?Math.PI/2:0, true, false, vimana);
+  });
+}
+createHaraParapet(13.6, 7.0, 4);
+
+// Tala 2 (Second Tier, recessed setback)
+bx(10.8, 4.2, 10.8, 0, 9.3, 0, stoneMat, vimana);
+bx(11.8, 0.65, 11.8, 0, 11.5, 0, stoneMat, vimana);
+createHaraParapet(11.0, 11.5, 3);
+
+// Tala 3 (Third Tier, recessed setback)
+bx(8.2, 3.6, 8.2, 0, 13.4, 0, stoneMat, vimana);
+bx(9.0, 0.6, 9.0, 0, 15.3, 0, stoneMat, vimana);
+createHaraParapet(8.4, 15.3, 2);
+
+// Tala 4 / Prastara (Fourth Setback)
+bx(6.2, 2.2, 6.2, 0, 16.6, 0, stoneMat, vimana);
+bx(6.8, 0.5, 6.8, 0, 17.8, 0, stoneMat, vimana);
+
+// Griva (Octagonal Neck with cardinal niche sculptures)
+{
+  const grivaGeom = new THREE.CylinderGeometry(2.3, 2.7, 1.8, 8);
+  mesh(grivaGeom, stoneMat, 0, 18.8, 0, 0, Math.PI/8, 0, true, true, vimana);
+  // Seated ganas/deities in 4 cardinal directions
+  [[0,-2.6], [0,2.6], [-2.6,0], [2.6,0]].forEach(p => {
+    bx(0.6, 0.9, 0.6, p[0], 18.8, p[1], reliefMat, vimana);
+  });
+}
+
+// Shikhara (Massive Bulbous Octagonal Dome)
+{
+  const shikharaGeom = new THREE.CylinderGeometry(1.6, 3.2, 3.6, 8);
+  mesh(shikharaGeom, stoneMat, 0, 21.2, 0, 0, Math.PI/8, 0, true, true, vimana);
+}
+
+// Padmapitha (Lotus Petal Cap)
+{
+  const padmaGeom = new THREE.CylinderGeometry(1.9, 1.4, 0.6, 16);
+  mesh(padmaGeom, stoneMat, 0, 23.2, 0, 0, 0, 0, true, true, vimana);
+}
+
+// Crowning Gilded Kalasam (Stupi Finial)
+// Reaches full monument height of 32.6 meters above courtyard floor
+{
+  const potGeom = new THREE.SphereGeometry(0.85, 14, 12);
+  const pot = mesh(potGeom, goldMat, 0, 24.1, 0, 0, 0, 0, true, false, vimana);
+  pot.scale.set(1.0, 1.25, 1.0);
+  const tipGeom = new THREE.ConeGeometry(0.4, 1.4, 12);
+  mesh(tipGeom, goldMat, 0, 25.4, 0, 0, 0, 0, true, false, vimana);
+}
+
+/* --- 12. PANCHAYATANA SUBSIDIARY SHRINES --- */
+// 5 subsidiary shrines located around the ambulatory terrace of the main vimana
+const subShrines = [
+  [-8.8, -23.5], [8.8, -23.5], [-8.8, -10.5], [8.8, -10.5], [0, -25.5]
+];
+subShrines.forEach(pos => {
+  const ss = new THREE.Group();
+  mainTemple.add(ss);
+  ss.position.set(pos[0], 4.6, pos[1]);
+  // Base
+  bx(3.2, 3.6, 3.2, 0, 1.8, 0, stoneMat, ss);
+  // Cornice
+  bx(3.8, 0.4, 3.8, 0, 3.7, 0, stoneMat, ss);
+  // Miniature Dravidian Vimana
+  bx(2.4, 1.8, 2.4, 0, 4.6, 0, stoneMat, ss);
+  const sg = new THREE.SphereGeometry(1.1, 8, 8);
+  mesh(sg, stoneMat, 0, 6.0, 0, 0, 0, 0, true, false, ss);
+  const fin = new THREE.ConeGeometry(0.25, 0.7, 8);
+  mesh(fin, goldMat, 0, 6.9, 0, 0, 0, 0, false, false, ss);
+});
+
+/* --- 13. TOP-DOWN SUBTRACTIVE EXCAVATION ROCK MASS (CHAPTER 3) --- */
+// Demonstrates how the 200,000-400,000 tonnes of basalt were sliced away from the top down.
+const excavationMass = bx(44, 33.5, 66, 0, 16.75, -2, rockMat);
+excavationMass.castShadow = false;
+disp.push(excavationMass);
+
+/* --- 14. ATMOSPHERIC LIGHTING & ILLUMINATION --- */
+const hemi = new THREE.HemisphereLight(0xd8c3a0, 0x241d16, 0.55);
+scene.add(hemi);
+
+const sun = new THREE.DirectionalLight(0xffb868, 2.2);
+sun.castShadow = true;
+sun.shadow.mapSize.set(mob ? 1024 : 2048, mob ? 1024 : 2048);
+Object.assign(sun.shadow.camera, {left:-50, right:50, top:50, bottom:-50, near:1, far:300});
+sun.shadow.bias = -0.00045;
+sun.target.position.set(0, 8, -6);
+scene.add(sun, sun.target);
+
+/* --- 15. DUST PARTICLES & VOLUMETRIC LIGHT SHAFTS --- */
+const dc = new THREE.CanvasTexture(cv(32,32,g=>{
+  const r = g.createRadialGradient(16,16,0,16,16,16);
+  r.addColorStop(0,'rgba(255,230,190,1)');
+  r.addColorStop(1,'rgba(255,230,190,0)');
+  g.fillStyle = r;
+  g.fillRect(0,0,32,32);
+}));
+disp.push(dc);
+
+const DN = mob ? 380 : 850;
+const dp = new Float32Array(DN*3), dv = new Float32Array(DN);
+for(let i=0; i<DN; i++){
+  dp[i*3] = (Math.random()-0.5)*90;
+  dp[i*3+1] = Math.random()*36;
+  dp[i*3+2] = (Math.random()-0.5)*90;
+  dv[i] = 0.2 + Math.random()*0.55;
+}
+const dg = new THREE.BufferGeometry();
+dg.setAttribute('position', new THREE.BufferAttribute(dp,3));
+const dm = new THREE.PointsMaterial({
+  map: dc, size: 0.65, transparent: true, depthWrite: false,
+  blending: THREE.AdditiveBlending, color: 0xffd9a0, opacity: 0.5
+});
+disp.push(dg, dm);
+const dust = new THREE.Points(dg, dm);
+dust.frustumCulled = false;
+scene.add(dust);
+
+// Volumetric Sun Rays
+const rt = new THREE.CanvasTexture(cv(64,256,(g,w,h)=>{
+  const v = g.createLinearGradient(0,0,0,h);
+  v.addColorStop(0,'rgba(255,255,255,0.95)');
+  v.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle = v;
+  g.fillRect(0,0,w,h);
+  g.globalCompositeOperation = 'destination-in';
+  const x = g.createLinearGradient(0,0,w,0);
+  x.addColorStop(0,'rgba(255,255,255,0)');
+  x.addColorStop(0.5,'rgba(255,255,255,1)');
+  x.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle = x;
+  g.fillRect(0,0,w,h);
+}));
+disp.push(rt);
+
+const rm = new THREE.MeshBasicMaterial({
+  map: rt, transparent: true, blending: THREE.AdditiveBlending,
+  depthWrite: false, side: THREE.DoubleSide, color: 0xffcf8a, fog: false, opacity: 0
+});
+disp.push(rm);
+
+const rays = new THREE.Group();
+scene.add(rays);
+[[-14,0],[0,0.4],[14,-0.3]].forEach(a=>{
+  const g = new THREE.PlaneGeometry(8, 120);
+  g.rotateX(-Math.PI/2);
+  disp.push(g);
+  const m = new THREE.Mesh(g, rm);
+  m.position.set(a[0], a[1]*10, 0);
+  rays.add(m);
+});
+
+/* =========================================================
+   CAMERA & LIGHT CHOREOGRAPHY FOR THE 8 CHAPTERS
+   ========================================================= */
+const P0 = [
+  // Ch 0: Reveal silhouette at gateway threshold
+  {p:[0, 7.5, 68], t:[0, 14, 0]},
+  // Ch 1: Ancient kingdom elevated panoramic perspective looking down into the excavated chasm
+  {p:[-28, 44, 46], t:[0, 10, -8]},
+  // Ch 2: Top-down rock-cut excavation demonstration
+  {p:[32, 42, 38], t:[0, 12, -6]},
+  // Ch 3: Entering the sacred courtyard between pillars & elephants
+  {p:[-7.5, 4.5, 17], t:[0, 11, -6]},
+  // Ch 4: Handled dynamically by sub-tabs
+  null,
+  // Ch 5: Handled dynamically by sub-tabs
+  null,
+  // Ch 6: Passage of time - long raking sunset shadows
+  {p:[-14, 11, 24], t:[0, 12, -8]},
+  // Ch 7: Eternal Kailasa pullback into starlit Deccan night
+  {p:[-18, 56, 88], t:[0, 12, -10]}
+];
+
+// Sub-poses for interactive tabs in Chapters 4 & 5
+const PS = {
+  4: [
+    // Tab 0: Ravana Shaking Mount Kailasa (close-up on south plinth)
+    {p:[15.5, 3.8, -8.0], t:[9.2, 2.6, -10]},
+    // Tab 1: Fierce Shaivite forms (Nataraja & sanctum niches)
+    {p:[-12.0, 6.8, -6.5], t:[-7.5, 5.5, -6.5]},
+    // Tab 2: Elephant plinth frieze
+    {p:[14.0, 2.6, 2.5], t:[8.5, 2.2, -6]}
+  ],
+  5: [
+    // Tab 0: Main Vimana Tower (sweeping view of the 32.6m Dravidian tiers)
+    {p:[-15.5, 17, 2], t:[0, 17, -17]},
+    // Tab 1: Gopuram gateway & screen wall
+    {p:[-14, 9, 40], t:[0, 9, 27]},
+    // Tab 2: Nandi pavilion & overhead rock-cut bridges
+    {p:[10.5, 6.5, 18], t:[0, 5.5, 13]},
+    // Tab 3: Rock-cut perimeter cloisters
+    {p:[0, 5.5, 12], t:[-19.5, 5.5, -6]}
+  ]
+};
+
+// Lighting keyframes for the 8 chapters:
+// [sunX, sunY, sunZ, sunColor, sunIntensity, fogColor, fogDensity, exposure, rayOpacity]
+const K = [
+  [-45, 14, 45, 0xffbc70, 2.2, 0x221a14, 0.009, 0.95, 0.25],
+  [-42, 24, 38, 0xffd29a, 2.8, 0x423424, 0.007, 1.05, 0.12],
+  [ 28, 48, 28, 0xfff3e0, 3.0, 0x5e503e, 0.006, 1.10, 0.00],
+  [ 18, 34, 34, 0xffe8c5, 2.7, 0x4a3c2c, 0.007, 1.05, 0.08],
+  [ 24, 22, 12, 0xffdeaa, 2.6, 0x443628, 0.007, 1.05, 0.06],
+  [ 32, 32, 22, 0xffe2b2, 2.7, 0x4c3e2e, 0.006, 1.05, 0.05],
+  [-58,  8, 12, 0xff8c32, 2.8, 0x542614, 0.008, 1.10, 0.22],
+  [-65,  4,  8, 0xe87232, 1.8, 0x1e1518, 0.004, 0.90, 0.12]
+];
+
+const pose = i => PS[i] ? PS[i][sub[i]] : P0[i];
+
+/* =========================================================
+   INTERACTIVE ARCHITECTURAL HOTSPOTS SYSTEM
+   ========================================================= */
+const HOTSPOTS_DATA = {
+  vimana: {
+    id: 'vimana',
+    title: 'The Great Dravidian Vimana',
+    tag: '32.6m Superstructure · Garbhagriha',
+    pos: [0, 22, -17],
+    cam: [-15, 18, 2],
+    target: [0, 18, -17],
+    desc: 'The pyramidal tower (vimana) rises 32.6 meters above the courtyard floor in four receding Dravidian tiers (talas). Each tier is ornamented with miniature shrines (kutas and shalas) linked by cloister walls with kudu horseshoe arches. The summit is crowned by an octagonal griva (neck), an octagonal shikhara dome, and a gilded kalasam finial.',
+    meta: 'South Indian Dravida Style · Aligned with Virupaksha Temple at Pattadakal'
+  },
+  nandi: {
+    id: 'nandi',
+    title: 'Nandi Mandapa & Overhead Bridges',
+    tag: 'Monolithic Pavilion · Living Rock Bridges',
+    pos: [0, 5, 13],
+    cam: [9.5, 6.5, 18],
+    target: [0, 5.0, 13],
+    desc: 'A two-storeyed monolithic pavilion raised on an adhisthana plinth, housing the sacred recumbent bull Nandi facing east into the Shiva sanctum. Miraculously, master excavators left two living rock bridges suspended overhead, seamlessly connecting the outer gateway, Nandi pavilion, and the main hall porch.',
+    meta: 'Top-down subtractive carving · Monolithic structural spans'
+  },
+  pillar: {
+    id: 'pillar',
+    title: 'Dhwaja-stambhas (Victory Pillars)',
+    tag: '15.5m Monolithic Columns · Shaivite Trishula',
+    pos: [10.2, 10, 9.5],
+    cam: [15, 6.5, 16],
+    target: [10.2, 10.5, 9.5],
+    desc: 'Two titanic monolithic victory columns stand proudly in the open courtyard. Raised on high pedestals carved with lions, their 16-sided fluted shafts taper toward bulbous lotus capitals and are surmounted by the sacred Shaivite trident (trishula) symbol of cosmic dominion.',
+    meta: 'Rashtrakuta Imperial Insignia · Monolithic basalt fluting'
+  },
+  elephants: {
+    id: 'elephants',
+    title: 'Courtyard Monolithic Elephants',
+    tag: 'Life-Sized Statues · Carved in the Round',
+    pos: [-10.5, 2.5, 1.0],
+    cam: [-15.5, 3.8, 7.5],
+    target: [-10.5, 2.2, 1.0],
+    desc: 'Flanking the central court are two freestanding, life-sized elephants sculpted directly from the living basalt floor. Their rounded anatomy, arched spines, caparisons, and curled trunks embody the sovereign majesty and abundance of the Rashtrakuta monarchs.',
+    meta: 'Monolithic Animal Sculpture · Western Deccan tradition'
+  },
+  plinth: {
+    id: 'plinth',
+    title: 'The Great Elephant Adhisthana',
+    tag: 'Continuous Plinth Frieze · Mythic Support',
+    pos: [9.5, 2.2, -2],
+    cam: [14.0, 2.8, 2.0],
+    target: [8.5, 2.2, -6],
+    desc: 'The entire 8-meter plinth of the temple is carved with an awe-inspiring continuous frieze of high-relief elephants, lions, and vyalas (mythical horned beasts). They stand shoulder-to-shoulder, appearing to physically hoist the multi-thousand-tonne temple aloft into the heavens.',
+    meta: 'Monumental Adhisthana Frieze · High-relief basalt carving'
+  },
+  ravana: {
+    id: 'ravana',
+    title: 'Ravana Shaking Mount Kailasa',
+    tag: 'World Masterpiece · South Plinth Relief',
+    pos: [9.3, 2.5, -10],
+    cam: [15.5, 3.6, -8.0],
+    target: [9.2, 2.6, -10],
+    desc: 'The celebrated Ravananugraha panel depicts the demon king Ravana trapped beneath Mount Kailasa, straining his twenty arms to dislodge the mountain. Above, Shiva calmly rests his right great toe to steady the cosmos, while Parvati clutches his arm and divine ganas look on with playful delight.',
+    meta: 'High-relief dramatic narrative · Art-historical pinnacle of Ellora'
+  },
+  cloisters: {
+    id: 'cloisters',
+    title: 'Rock-Cut Perimeter Cloisters',
+    tag: 'Two-Storeyed Arcades · Mythological Galleries',
+    pos: [-19.5, 6, -10],
+    cam: [-8, 6.5, 2],
+    target: [-19.5, 5.2, -6],
+    desc: 'Deep two-tier pillared galleries hollowed directly into the vertical cliff faces enclosing the temple. The rear walls feature over forty monumental relief panels illustrating the avatars of Vishnu and the cosmic manifestations of Shiva.',
+    meta: 'Subtractive rock-cut arcade · Continuous narrative friezes'
+  },
+  gateway: {
+    id: 'gateway',
+    title: 'Gopuram (Screen Gateway)',
+    tag: 'Two-Storeyed Entrance · Prākāra Wall',
+    pos: [0, 8, 27],
+    cam: [-13, 8.5, 38],
+    target: [0, 8.5, 27],
+    desc: 'The monumental rock-cut screen gateway serves as the ceremonial threshold. Its exterior features colossal sculpted niches of Gajalakshmi, Dvarapalas, and the river goddesses Ganga and Yamuna, crowned by an oblong barrel-vaulted shala roof.',
+    meta: 'Ceremonial threshold · River Goddess iconography'
+  }
+};
+
+let activeHotspot = null;
+let isHotspotMode = false;
+const hsPinsContainer = $('#hotspot-pins');
+const hsCard = $('#hs-card');
+const hsCardTitle = $('#hs-card-title');
+const hsCardTag = $('#hs-card-tag');
+const hsCardDesc = $('#hs-card-desc');
+const hsCardMeta = $('#hs-card-meta');
+
+// Generate 3D hotspot screen pins
+const pinElements = {};
+Object.keys(HOTSPOTS_DATA).forEach((key, idx) => {
+  const data = HOTSPOTS_DATA[key];
+  const pin = document.createElement('div');
+  pin.className = 'hs-pin';
+  pin.dataset.hs = key;
+  pin.innerHTML = `
+    <div class="hs-pin-inner">${idx+1}</div>
+    <div class="hs-pin-label">${data.title}</div>
+  `;
+  pin.onclick = () => selectHotspot(key);
+  hsPinsContainer.appendChild(pin);
+  pinElements[key] = pin;
+});
+
+// Hotspot bar buttons
+$$('#hotspot-bar .hs-btn').forEach(btn => {
+  btn.onclick = () => {
+    const target = btn.dataset.target;
+    const hsKey = btn.dataset.hs;
+    if(target === 'scroll'){
+      exitHotspotMode();
+    } else if(hsKey){
+      selectHotspot(hsKey);
+    }
+  };
+});
+
+function selectHotspot(key){
+  activeHotspot = HOTSPOTS_DATA[key];
+  isHotspotMode = true;
+  document.body.classList.add('hotspot-active', 'show-hotspots');
+  $$('#hotspot-bar .hs-btn').forEach(b => {
+    b.classList.toggle('a', b.dataset.hs === key);
+  });
+  Object.keys(pinElements).forEach(k => {
+    pinElements[k].classList.toggle('sel', k === key);
+  });
+  // Populate card
+  hsCardTitle.textContent = activeHotspot.title;
+  hsCardTag.textContent = activeHotspot.tag;
+  hsCardDesc.textContent = activeHotspot.desc;
+  hsCardMeta.textContent = activeHotspot.meta;
+  hsCard.classList.add('open');
+}
+
+function closeHotspotCard(){
+  hsCard.classList.remove('open');
+}
+
+function exitHotspotMode(){
+  isHotspotMode = false;
+  activeHotspot = null;
+  document.body.classList.remove('hotspot-active');
+  if(act !== 5) document.body.classList.remove('show-hotspots');
+  $$('#hotspot-bar .hs-btn').forEach(b => {
+    b.classList.toggle('a', b.dataset.target === 'scroll');
+  });
+  Object.keys(pinElements).forEach(k => pinElements[k].classList.remove('sel'));
+  closeHotspotCard();
+}
+
+$('#hs-card-close').onclick = closeHotspotCard;
+$('#hs-card-resume').onclick = exitHotspotMode;
+$('#btn-explore-prompt').onclick = () => selectHotspot('vimana');
+window.selectHotspot = selectHotspot;
+window.exitHotspotMode = exitHotspotMode;
+window.toggleMysteries = toggleMysteries;
+
+/* Update 3D projected pins to screen coordinates */
+const tempVec = new THREE.Vector3();
+function updateHotspotPins(){
+  const wHalf = innerWidth / 2;
+  const hHalf = innerHeight / 2;
+  Object.keys(HOTSPOTS_DATA).forEach(key => {
+    const data = HOTSPOTS_DATA[key];
+    const pin = pinElements[key];
+    tempVec.set(...data.pos);
+    tempVec.project(cam);
+    const isBehind = tempVec.z > 1;
+    if(isBehind){
+      pin.classList.remove('v');
+    } else {
+      pin.classList.add('v');
+      const sx = (tempVec.x * wHalf) + wHalf;
+      const sy = -(tempVec.y * hHalf) + hHalf;
+      pin.style.left = `${sx}px`;
+      pin.style.top = `${sy}px`;
+    }
+  });
+}
+
+/* =========================================================
+   ANIMATION & RENDERING PIPELINE
+   ========================================================= */
+const pos = new THREE.Vector3(0, 7.5, 76), look = new THREE.Vector3(0, 14, 0);
+const va = new THREE.Vector3(), vb = new THREE.Vector3(), ca = new THREE.Color(), cb = new THREE.Color();
+let H = 1, mx = 0, my = 0, smx = 0, smy = 0;
+let intro = RM ? 1 : 0, last = performance.now(), raf = 0, first = false;
+
+function size(){
+  const w = innerWidth, h = innerHeight;
+  R.setSize(w, h, false);
+  cam.aspect = w / h;
+  cam.fov = w / h < 0.8 ? 62 : 48;
+  cam.updateProjectionMatrix();
+  H = secs[0].offsetHeight || h;
+}
+size();
+addEventListener('resize', size);
+
+if(!mob && !RM){
+  addEventListener('pointermove', e => {
+    mx = e.clientX / innerWidth - 0.5;
+    my = e.clientY / innerHeight - 0.5;
+  }, {passive:true});
+}
+
+const bar = $('#bar'), pc = $('#pc');
+let act = -1;
+
+function frame(now){
+  raf = requestAnimationFrame(frame);
+  const dt = Math.min((now - last) / 1000, 0.1);
+  last = now;
+  intro = Math.min(1, intro + dt / 3.2);
+
+  const sy = scrollY, tt = sy / H;
+  const i = Math.min(N-1, Math.floor(tt));
+  const j = Math.min(N-1, i+1);
+  const s = i >= N-1 ? 0 : sm(cl((tt - i - 0.3) / 0.7, 0, 1));
+
+  let dP, dL;
+  if(isHotspotMode && activeHotspot){
+    // Glide camera smoothly to the inspection viewpoint
+    va.set(...activeHotspot.cam);
+    dP = va.clone();
+    va.set(...activeHotspot.target);
+    dL = va.clone();
+  } else {
+    // Normal scroll-choreographed flight path
+    const A = pose(i), B = pose(j);
+    va.set(...A.p).lerp(vb.set(...B.p), s);
+    dP = va.clone();
+    va.set(...A.t).lerp(vb.set(...B.t), s);
+    dL = va.clone();
+  }
+
+  const k = RM ? 1 : 1 - Math.exp(-dt * 3.4);
+  pos.lerp(dP, k);
+  look.lerp(dL, k);
+  smx += (mx - smx) * 0.05;
+  smy += (my - smy) * 0.05;
+
+  cam.position.set(pos.x + smx*3.2, pos.y - smy*2.2, pos.z);
+  cam.lookAt(look);
+
+  // Lighting interpolation
+  const a = K[i], b = K[j];
+  sun.position.set(L(a[0],b[0],s), L(a[1],b[1],s), L(a[2],b[2],s));
+  sun.color.copy(ca.setHex(a[3]).lerp(cb.setHex(b[3]), s));
+  sun.intensity = L(a[4],b[4],s);
+  ca.setHex(a[5]).lerp(cb.setHex(b[5]), s);
+  scene.fog.color.copy(ca);
+  scene.background.copy(ca);
+  scene.fog.density = L(a[6],b[6],s);
+
+  const ex = L(a[7],b[7],s) * sm(intro);
+  R.toneMappingExposure = ex;
+  hemi.intensity = 0.55 * sm(intro);
+
+  const ry = L(a[8],b[8],s);
+  rm.opacity = ry * sm(intro);
+  rays.position.copy(sun.position).multiplyScalar(0.9);
+  rays.lookAt(0, 6, 0);
+  rm.color.copy(sun.color);
+
+  dm.opacity = 0.16 + 0.34 * (1 - cl(tt/3, 0, 1));
+
+  // Dust motes floating
+  if(!RM){
+    const p = dg.attributes.position;
+    for(let n=0; n<DN; n++){
+      p.array[n*3+1] += dv[n] * dt;
+      p.array[n*3] += Math.sin(now/2800 + n) * dt * 0.32;
+      if(p.array[n*3+1] > 36) p.array[n*3+1] = 0;
+    }
+    p.needsUpdate = true;
+  }
+
+  // Chapter 3 Top-Down Subtractive Rock Excavation Cut Animation
+  rockMat.opacity = cl((tt - 1.55) / 0.35, 0, 1);
+  excavationMass.visible = rockMat.opacity > 0.01;
+  const cut = sm(cl((tt - 2.0) / 0.95, 0, 1));
+  plane.constant = 34 - 34 * cut;
+  pc.textContent = Math.round(cut * 100);
+
+  // Update navigation dots & scroll bar
+  const ac = cl(Math.round(tt), 0, N-1);
+  if(ac !== act){
+    act = ac;
+    dots.forEach((d, n) => d.classList.toggle('a', n === ac));
+    if(!isHotspotMode){
+      document.body.classList.toggle('show-hotspots', ac === 5);
+    }
+  }
+  bar.style.width = (sy / Math.max(1, document.documentElement.scrollHeight - innerHeight) * 100) + '%';
+
+  // Smooth daytime architectural illumination during Hotspot inspection
+  if(isHotspotMode){
+    sun.position.lerp(new THREE.Vector3(26, 36, 26), 0.08);
+    sun.intensity = L(sun.intensity, 2.8, 0.08);
+    scene.fog.density = L(scene.fog.density, 0.005, 0.08);
+    R.toneMappingExposure = L(R.toneMappingExposure, 1.05, 0.08);
+  }
+
+  // Render 3D Scene
+  R.render(scene, cam);
+
+  // Update 3D screen hotspot positions
+  updateHotspotPins();
+
+  if(!first){
+    first = true;
+    ld.classList.add('x');
+  }
+}
+
+const start = () => { if(!raf){ last = performance.now(); raf = requestAnimationFrame(frame); }};
+const stop = () => { cancelAnimationFrame(raf); raf = 0; };
+
+document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
+$('#gl').addEventListener('webglcontextlost', e => { e.preventDefault(); stop(); });
+$('#gl').addEventListener('webglcontextrestored', start);
+
+addEventListener('pagehide', () => {
+  stop();
+  disp.forEach(d => d.dispose && d.dispose());
+  scene.traverse(o => { if(o.geometry) o.geometry.dispose(); });
+  R.dispose();
+  R.forceContextLoss();
+});
+
+start();
+})();
+</script>
+</body>
+</html>
